@@ -12,6 +12,7 @@ module LogStash; module Outputs; class SumoLogic;
     DEFLATE = "deflate"
     GZIP = "gzip"
     STATS_TAG = "STATS_TAG"
+    CATEGORY_HEADER_DEFAULT="undefined"
 
     # for debugging test
     LOG_TO_CONSOLE = false

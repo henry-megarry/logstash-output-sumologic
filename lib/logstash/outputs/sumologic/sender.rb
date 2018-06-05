@@ -94,7 +94,7 @@ module LogStash; module Outputs; class SumoLogic;
     private
 
     def send_request(content)
-      if content == STOP_TAG
+      if content.getMessage() == STOP_TAG
         log_dbg "STOP_TAG is received."
         return
       end
@@ -102,11 +102,15 @@ module LogStash; module Outputs; class SumoLogic;
       token = @tokens.pop()
 
       if @stats_enabled && content.start_with?(STATS_TAG)
-        body = @compressor.compress(content[STATS_TAG.length..-1])
+        body = @compressor.compress(content.getMessage()[STATS_TAG.length..-1])
         headers = @stats_headers
       else
-        body = @compressor.compress(content)
+        body = @compressor.compress(content.getMessage())
         headers = @headers
+      end
+
+      unless content.getKey() = "undefined"
+        headers[CATEGORY_HEADER] = content.getKey()
       end
   
       request = @client.send(:background).send(:post, @url, :body => body, :headers => headers)

@@ -149,7 +149,7 @@ class LogStash::Outputs::SumoLogic < LogStash::Outputs::Base
   def receive(event)
     begin
       content = @builder.build(event)
-      @piler.input(content)
+      @piler.input(content, getSourceCategory(event))
     rescue Exception => exception
       log_err(
         "Error when processing event",
@@ -160,6 +160,10 @@ class LogStash::Outputs::SumoLogic < LogStash::Outputs::Base
     )
     end
   end # def receive
+
+  def getSourceCategory(event)
+    event.sprintf(@source_category]) ||= CATEGORY_HEADER_DEFAULT
+  end
 
   def close
     @monitor.stop()

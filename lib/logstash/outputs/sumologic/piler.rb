@@ -20,7 +20,7 @@ module LogStash; module Outputs; class SumoLogic;
       @is_pile = (@interval > 0 && @pile_max > 0)
 
       if (@is_pile)
-        @pile = Array.new
+        @piles = Hash.new
         @pile_size = 0
         @semaphore = Mutex.new
       end
@@ -49,23 +49,28 @@ module LogStash; module Outputs; class SumoLogic;
       end
     end # def stop
 
-    def input(entry)
+    def input(entry, key)
       if (@stopping.true?)
         log_warn "piler is shutting down, message ignored", "message" => entry
       elsif (@is_pile)
         @semaphore.synchronize {
           if @pile_size + entry.bytesize > @pile_max
-            @queue.enq(@pile.join($/))
-            @pile.clear
+            @piles.each do |key, pile|
+              @queue.enq(queueItem(@pile.join($/), key)
+              @pile.clear
+            end
             @pile_size = 0
             @stats.record_clear_pile()
           end
-          @pile << entry
+          if !@piles.key?(key)
+            @piles[key] = Array.new
+          end
+          @piles[key] << entry
           @pile_size += entry.bytesize
           @stats.record_input(entry)
         }
       else
-        @queue.enq(entry)
+        @queue.enq(queueItem(entry,key))
       end # if
     end # def input
 
@@ -83,5 +88,20 @@ module LogStash; module Outputs; class SumoLogic;
       end
     end # def enq_and_clear
 
+  end
+
+  class queueItem 
+    def initialize(message, key)
+      @key = key
+      @message = message
+    end
+
+    def getKey()
+      @key
+    end
+
+    def getMessage()
+      @message
+    end
   end
 end; end; end
