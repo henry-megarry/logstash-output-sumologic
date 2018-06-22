@@ -94,7 +94,7 @@ module LogStash; module Outputs; class SumoLogic;
     private
 
     def send_request(content)
-      if content.getMessage() == STOP_TAG
+      if content == STOP_TAG
         log_dbg "STOP_TAG is received."
         return
       end
@@ -109,7 +109,7 @@ module LogStash; module Outputs; class SumoLogic;
         headers = @headers
       end
 
-      unless content.getKey() = "undefined"
+      unless content.getKey() == "undefined"
         headers[CATEGORY_HEADER] = content.getKey()
       end
   

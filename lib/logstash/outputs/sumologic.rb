@@ -110,6 +110,8 @@ class LogStash::Outputs::SumoLogic < LogStash::Outputs::Base
   # Sending throughput data points every (x) seconds
   config :stats_interval, :validate => :number, :default => 60
 
+  CATEGORY_HEADER_DEFAULT = "Logstash"
+
   attr_reader :stats
   
   def register
@@ -130,20 +132,20 @@ class LogStash::Outputs::SumoLogic < LogStash::Outputs::Base
   end # def register
 
   def multi_receive(events)
-    # events.map { |e| receive(e) }
-    begin
-      content = Array(events).map { |event| @builder.build(event) }.join($/)
-      @queue.enq(content)
-      @stats.record_multi_input(events.size, content.bytesize)
-    rescue Exception => exception
-      log_err(
-        "Error when processing events",
-        :events => events,
-        :message => exception.message,
-        :class => exception.class.name,
-        :backtrace => exception.backtrace
-    )
-    end
+     events.map { |e| receive(e) }
+#    begin
+#      content = Array(events).map { |event| @builder.build(event) }.join($/)
+#      @queue.enq(content)
+#      @stats.record_multi_input(events.size, content.bytesize)
+#    rescue Exception => exception
+#      log_err(
+#        "Error when processing events",
+#        :events => events,
+#        :message => exception.message,
+#        :class => exception.class.name,
+#        :backtrace => exception.backtrace
+#    )
+#    end
   end # def multi_receive
   
   def receive(event)
@@ -162,7 +164,11 @@ class LogStash::Outputs::SumoLogic < LogStash::Outputs::Base
   end # def receive
 
   def getSourceCategory(event)
-    event.sprintf(@source_category]) ||= CATEGORY_HEADER_DEFAULT
+    if(@source_category)
+      sc = event.sprintf(@source_category)
+    else 
+      sc = CATEGORY_HEADER_DEFAULT
+    return sc
   end
 
   def close

@@ -55,8 +55,8 @@ module LogStash; module Outputs; class SumoLogic;
       elsif (@is_pile)
         @semaphore.synchronize {
           if @pile_size + entry.bytesize > @pile_max
-            @piles.each do |key, pile|
-              @queue.enq(queueItem(@pile.join($/), key)
+            @piles.each do |sc, pile|
+              @queue.enq(QueueItem(@pile.join($/), @sc))
               @pile.clear
             end
             @pile_size = 0
@@ -70,27 +70,27 @@ module LogStash; module Outputs; class SumoLogic;
           @stats.record_input(entry)
         }
       else
-        @queue.enq(queueItem(entry,key))
+        @queue.enq(QueueItem(entry,key))
       end # if
     end # def input
 
     private
     def enq_and_clear()
-      if (@pile.size > 0)
+      if (@piles.size > 0)
         @semaphore.synchronize {
-          if (@pile.size > 0)
-            @queue.enq(@pile.join($/))
-            @pile.clear
+            @piles.each do |sc, pile|
+              @queue.enq(queueItem(@pile.join($/), @sc))
+              @pile.clear
+            end
             @pile_size = 0
             @stats.record_clear_pile()
-          end
         }
       end
     end # def enq_and_clear
 
   end
 
-  class queueItem 
+  class QueueItem 
     def initialize(message, key)
       @key = key
       @message = message
