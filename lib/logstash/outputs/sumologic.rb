@@ -168,6 +168,7 @@ class LogStash::Outputs::SumoLogic < LogStash::Outputs::Base
       sc = event.sprintf(@source_category)
     else 
       sc = CATEGORY_HEADER_DEFAULT
+    end
     return sc
   end
 
