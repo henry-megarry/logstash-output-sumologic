@@ -132,7 +132,7 @@ class LogStash::Outputs::SumoLogic < LogStash::Outputs::Base
   end # def register
 
   def multi_receive(events)
-     events.map { |e| receive(e) }
+     Array(events).map { |e| receive(e) }
 #    begin
 #      content = Array(events).map { |event| @builder.build(event) }.join($/)
 #      @queue.enq(content)
@@ -164,10 +164,10 @@ class LogStash::Outputs::SumoLogic < LogStash::Outputs::Base
   end # def receive
 
   def getSourceCategory(event)
-    if(@source_category)
+    sc = CATEGORY_HEADER_DEFAULT
+    if(defined? @source_category)
       sc = event.sprintf(@source_category)
-    else 
-      sc = CATEGORY_HEADER_DEFAULT
+    end
     return sc
   end
 

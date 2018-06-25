@@ -14,6 +14,7 @@ module LogStash; module Outputs; class SumoLogic;
 
     include LogStash::Outputs::SumoLogic::Common
     STOP_TAG = "PLUGIN STOPPED"
+    CATEGORY_HEADER = "X-Sumo-Category"
 
     def initialize(client, queue, stats, config)
       @client = client
