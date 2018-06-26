@@ -105,7 +105,7 @@ module LogStash; module Outputs; class SumoLogic;
     end
 
     def bytesize()
-      message.bytesize()
+      @message.bytesize()
     end
   end
 end; end; end
